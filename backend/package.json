@@ -1,0 +1,21 @@
+{
+  "name": "robin-react-koa-boilerplate",
+  "version": "1.0.0",
+  "description": "Boilerplate",
+  "author": "Robin Pham",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "koa": "^2.3.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.3.0",
+    "nodemon": "^1.12.1",
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.9.0"
+  }
+}
