@@ -1,0 +1,27 @@
+version: '3'
+services:
+  test-db:
+    image: postgres:10
+    environment:
+      - POSTGRES_DB=expense_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  test-api:
+    image: node:8.7
+    working_dir: /api
+    command: ["./wait-for-it.sh", "${DB_HOST}:${DB_PORT}", "--", "./init-backend.sh"]
+    ports:
+      - 8081:8081
+    environment:
+      - DB_PORT=5432
+      - DB_HOST=test-db
+      - API_PORT=8081
+      - POSTGRES_DB=expense_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - JWT_SECRET=testsecret
+    volumes: 
+      - .:/api
+    depends_on:
+      - test-db

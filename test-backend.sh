@@ -3,4 +3,4 @@
 cd backend
 yarn db:migrate
 yarn install
-yarn start
+yarn test
