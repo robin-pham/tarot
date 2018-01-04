@@ -1,5 +1,7 @@
+import winston from 'winston';
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || 'TESTING1234';
 
+/*
 // Handles messages events
 function handleMessage(sender_psid, received_message) {}
 
@@ -8,6 +10,7 @@ function handlePostback(sender_psid, received_postback) {}
 
 // Sends response messages via the Send API
 function callSendAPI(sender_psid, response) {}
+*/
 
 export const messageLogger = ctx => {
   const body = ctx.request.body;
