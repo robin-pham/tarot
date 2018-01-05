@@ -53,7 +53,8 @@ function getTarotCardResponse() {
 }
 
 function getTarotInterpretation() {
-  const interpretationString = 'This is an interpretation of your card. The .';
+  const interpretationString =
+    'The three of dogs represents Cerberus, the gatekeeper of the underworld, a.k.a place of pomegranates, a.k.a fruits with too many seeds. Seeds represents potential new growth and the circle of life in which we all die and pass on our genes to the next generation. In other words the three of dogs represents how we all truly feel inside, we just have to be open-minded';
 
   const response = {
     text: interpretationString,
@@ -74,12 +75,12 @@ function getNextOptions() {
             buttons: [
               {
                 type: 'postback',
-                title: 'Get a Clarifying Card',
+                title: 'Clarifying Card',
                 payload: 'clarification',
               },
               {
                 type: 'postback',
-                title: "I'm done",
+                title: "I'm done, thanks",
                 payload: 'done',
               },
             ],
@@ -98,11 +99,21 @@ export const messageHandler = ctx => {
   if (body.object === 'page') {
     body.entry.forEach(async entry => {
       const webhookEvent = entry.messaging[0];
-      const senderId = webhookEvent.sender.id;
+      const {text, sender} = webhookEvent;
+      const senderId = sender.id;
       winston.info('Sender PSID: ', senderId);
-      await callSendAPI(senderId, getTarotCardResponse());
-      await callSendAPI(senderId, getTarotInterpretation());
-      await callSendAPI(senderId, getNextOptions());
+      switch (text) {
+        case 'start':
+          await callSendAPI(senderId, getTarotCardResponse());
+          await callSendAPI(senderId, getTarotInterpretation());
+          await callSendAPI(senderId, getNextOptions());
+          break;
+        case 'help':
+          await callSendAPI(senderId, "say 'start' to begin");
+          break;
+        default:
+          break;
+      }
     });
     ctx.status = 200;
     ctx.body = 'Event Received';
