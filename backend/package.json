@@ -25,6 +25,8 @@
     "nodemon": "^1.12.1",
     "objection": "^0.9.3",
     "pg": "^7.4.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
     "winston": "^2.4.0"
   },
   "devDependencies": {

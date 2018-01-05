@@ -5,7 +5,6 @@ import objection from 'objection';
 import Knex from 'knex';
 
 import knexConfig from './knexfile';
-import {errorHandler} from './middleware';
 import router from './routes';
 
 const Model = objection.Model;
@@ -20,7 +19,6 @@ const port = process.env.API_PORT || 8080;
 
 app.use(bodyParser());
 app.use(router.routes());
-app.on('error', errorHandler);
 
 const server = app.listen(port, () => {
   winston.info(`The app has started on port: ${port} 🚀👍🚀`);
