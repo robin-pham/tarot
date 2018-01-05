@@ -32,9 +32,9 @@ async function callSendAPI(sender_psid, response) {
   }
 }
 
-function getResponse() {
-  const interpretationString = 'This is an interpretation of your card. The .';
-  const tarotCardUrl = 'https://i.imgur.com/8cqebYZ.jpg';
+function getTarotCardResponse() {
+  const imgUrl = 'https://i.imgur.com/8cqebYZ.jpg';
+  const cardTitle = 'The Three of Dogs';
   const response = {
     attachment: {
       type: 'template',
@@ -42,19 +42,40 @@ function getResponse() {
         template_type: 'generic',
         elements: [
           {
-            title: 'Hello',
-            subtitle: interpretationString,
-            image_url: tarotCardUrl,
+            title: cardTitle,
+            image_url: imgUrl,
+          },
+        ],
+      },
+    },
+  };
+  return response;
+}
+
+function getTarotInterpretation() {
+  const interpretationString = 'This is an interpretation of your card. The .';
+
+  const response = {
+    text: interpretationString,
+  };
+
+  return response;
+}
+
+function getNextOptions() {
+  const response = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements: [
+          {
+            title: 'What would you like to do next?',
             buttons: [
               {
                 type: 'postback',
-                title: 'Do you want some clarification?',
+                title: 'Get a Clarifying Card',
                 payload: 'clarification',
-              },
-              {
-                type: 'postback',
-                title: 'This is great, thanks',
-                payload: 'good',
               },
               {
                 type: 'postback',
@@ -75,11 +96,13 @@ export const messageHandler = ctx => {
   winston.info('received a message', body);
 
   if (body.object === 'page') {
-    body.entry.forEach(entry => {
+    body.entry.forEach(async entry => {
       const webhookEvent = entry.messaging[0];
       const senderId = webhookEvent.sender.id;
       winston.info('Sender PSID: ', senderId);
-      callSendAPI(senderId, getResponse());
+      await callSendAPI(senderId, getTarotCardResponse());
+      await callSendAPI(senderId, getTarotInterpretation());
+      await callSendAPI(senderId, getNextOptions());
     });
     ctx.status = 200;
     ctx.body = 'Event Received';
