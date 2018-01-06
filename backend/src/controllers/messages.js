@@ -3,6 +3,7 @@ import request from 'request-promise';
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || 'TESTING1234';
 const PAGE_ACCESS_TOKEN =
   process.env.PAGE_ACCESS_TOKEN || 'TESTING1234 TOKEN NOT SET';
+const ENV = process.env.NODE_ENV;
 
 /*
 // Handles messages events
@@ -19,6 +20,10 @@ async function callSendAPI(sender_psid, response) {
     },
     message: response,
   };
+  if (ENV === 'development') {
+    winston.info('Sending message', requestBody);
+    return;
+  }
   try {
     await request({
       uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -94,15 +99,14 @@ function getNextOptions() {
 
 export const messageHandler = ctx => {
   const body = ctx.request.body;
-  winston.info('received a message', body);
+  winston.info('Received a message', body);
 
   if (body.object === 'page') {
     body.entry.forEach(async entry => {
       const webhookEvent = entry.messaging[0];
-      const {text, sender} = webhookEvent;
+      const {message, sender} = webhookEvent;
       const senderId = sender.id;
-      winston.info('Sender PSID: ', senderId);
-      switch (text) {
+      switch (message.text) {
         case 'start':
           await callSendAPI(senderId, getTarotCardResponse());
           await callSendAPI(senderId, getTarotInterpretation());
