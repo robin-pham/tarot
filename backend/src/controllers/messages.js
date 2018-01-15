@@ -5,13 +5,41 @@ const PAGE_ACCESS_TOKEN =
   process.env.PAGE_ACCESS_TOKEN || 'TESTING1234 TOKEN NOT SET';
 const ENV = process.env.NODE_ENV;
 
-/*
 // Handles messages events
-function handleMessage(sender_psid, received_message) {}
+async function handleMessage(senderId, message) {
+  switch (message.text) {
+    case 'start':
+      await callSendAPI(senderId, getTarotCardResponse());
+      await callSendAPI(senderId, getTarotInterpretation());
+      await callSendAPI(senderId, getNextOptions());
+      break;
+    case 'help':
+      await callSendAPI(senderId, {
+        text: "say 'start' to begin",
+      });
+      break;
+    default:
+      break;
+  }
+}
 
 // Handles messaging_postbacks events
-function handlePostback(sender_psid, received_postback) {}
-*/
+async function handlePostback(senderId, postback) {
+  const {payload} = postback;
+  let response;
+
+  switch (payload) {
+    case POSTBACK_DONE:
+      response = {text: 'Great!'};
+      break;
+    case POSTBACK_CLARIFICATION:
+      response = {text: 'in progress'};
+      break;
+    default:
+      break;
+  }
+  callSendAPI(senderId, response);
+}
 
 async function callSendAPI(sender_psid, response) {
   const requestBody = {
@@ -68,6 +96,9 @@ function getTarotInterpretation() {
   return response;
 }
 
+const POSTBACK_CLARIFICATION = 'clarification';
+const POSTBACK_DONE = 'done';
+
 function getNextOptions() {
   const response = {
     attachment: {
@@ -81,12 +112,12 @@ function getNextOptions() {
               {
                 type: 'postback',
                 title: 'Clarifying Card',
-                payload: 'clarification',
+                payload: POSTBACK_CLARIFICATION,
               },
               {
                 type: 'postback',
                 title: "I'm done, thanks",
-                payload: 'done',
+                payload: POSTBACK_DONE,
               },
             ],
           },
@@ -104,19 +135,12 @@ export const messageHandler = ctx => {
   if (body.object === 'page') {
     body.entry.forEach(async entry => {
       const webhookEvent = entry.messaging[0];
-      const {message, sender} = webhookEvent;
+      const {message, sender, postback} = webhookEvent;
       const senderId = sender.id;
-      switch (message.text) {
-        case 'start':
-          await callSendAPI(senderId, getTarotCardResponse());
-          await callSendAPI(senderId, getTarotInterpretation());
-          await callSendAPI(senderId, getNextOptions());
-          break;
-        case 'help':
-          await callSendAPI(senderId, "say 'start' to begin");
-          break;
-        default:
-          break;
+      if (message) {
+        handleMessage(senderId, message);
+      } else if (postback) {
+        handlePostback(senderId, postback);
       }
     });
     ctx.status = 200;
